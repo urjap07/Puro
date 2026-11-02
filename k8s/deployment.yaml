@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: puro-container
-          image: localhost:5001/puro-website:v1.0.0
+          image: localhost:5001/puro-website:9ec87ba87b81445907b5491d317e9bb43daadc18
           imagePullPolicy: IfNotPresent
 
           ports:
