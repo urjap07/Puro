@@ -1,0 +1,34 @@
+name: Puro Local CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Docker
+        run: docker --version
+
+      - name: Verify Kubernetes
+        run: kubectl get nodes
+
+      - name: Verify Local Registry
+        run: curl -f http://localhost:5001/v2/_catalog
+
+      - name: Build Docker Image
+        run: |
+          docker build -t localhost:5001/puro-website:${GITHUB_SHA} .
+
+      - name: Push Docker Image
+        run: |
+          docker push localhost:5001/puro-website:${GITHUB_SHA}
