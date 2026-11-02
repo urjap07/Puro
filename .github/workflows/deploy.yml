@@ -1,3 +1,4 @@
+
 name: Puro Local CI/CD
 
 on:
@@ -15,6 +16,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify Docker
         run: docker --version
@@ -22,8 +25,6 @@ jobs:
       - name: Verify Kubernetes
         run: kubectl get nodes
 
-      - name: Verify Local Registry
-        run: curl -f http://localhost:5001/v2/_catalog
 
       - name: Build Docker Image
         run: |
@@ -32,3 +33,16 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push localhost:5001/puro-website:${GITHUB_SHA}
+
+      - name: Update Kubernetes Manifest
+        run: |
+          sed -i '' "s|image: .*puro-website:.*|image: localhost:5001/puro-website:${GITHUB_SHA}|" k8s/deployment.yaml
+
+      - name: Commit and Push Manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add k8s/deployment.yaml
+          git commit -m "Deploy Puro image ${GITHUB_SHA}" || echo "No manifest changes"
+          git push origin HEAD:main
+
