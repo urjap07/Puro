@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: puro-deployment
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: puro
+
+  template:
+    metadata:
+      labels:
+        app: puro
+
+    spec:
+      containers:
+        - name: puro-container
+          image: puro-website:v1.0.0
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 80
